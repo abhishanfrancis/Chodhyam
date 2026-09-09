@@ -8,6 +8,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
+# Patch sqlite3 for ChromaDB to work on Azure/Linux where sqlite3 < 3.35.0
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import chromadb
 from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
