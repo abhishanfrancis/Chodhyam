@@ -420,6 +420,32 @@ endSessionBtn.addEventListener('click', async () => {
     }
 });
 
+// Reset Timer
+const resetTimerBtn = document.getElementById('reset-timer-btn');
+if (resetTimerBtn) {
+    resetTimerBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!sessionId) return;
+        
+        resetTimerBtn.textContent = 'Resetting...';
+        try {
+            const response = await fetch(`${API_BASE}/auth/extend?session_id=${sessionId}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Failed to extend session');
+            const data = await response.json();
+            
+            sessionExpiryTime = data.expires_at;
+            localStorage.setItem('chodhyam_expires_at', sessionExpiryTime);
+            if (typeof hasWarnedExpiry !== 'undefined') hasWarnedExpiry = false;
+            updateTimer();
+        } catch (error) {
+            console.error(error);
+            alert('Could not reset timer.');
+        } finally {
+            resetTimerBtn.textContent = 'Reset Timer';
+        }
+    });
+}
+
 // File Upload Logic
 uploadZone.addEventListener('click', () => fileInput.click());
 
@@ -622,6 +648,8 @@ function removeLoading(id) {
     if (el) el.remove();
 }
 
+let hasWarnedExpiry = false;
+
 function showWorkspace() {
     heroSection.classList.add('hidden');
     workspaceView.classList.remove('hidden');
@@ -630,6 +658,7 @@ function showWorkspace() {
     if (uploadedDocuments.length === 0) {
         chatMessages.innerHTML = '<div class="text-gray-400 text-sm italic">Workspace ready. Upload PDFs to begin.</div>';
     }
+    hasWarnedExpiry = false;
 }
 
 function clearSession() {
@@ -645,6 +674,7 @@ function clearSession() {
     workspaceView.classList.remove('flex');
     heroSection.classList.remove('hidden');
     gsap.to(canvas, { autoAlpha: 1, duration: 0.5, ease: 'power2.out' });
+    hasWarnedExpiry = false;
 }
 
 function startTimer() {
@@ -662,6 +692,11 @@ function updateTimer() {
         clearSession();
         alert('Your session has expired. Workspace data has been cleared.');
         return;
+    }
+    
+    if (remaining <= 300 && !hasWarnedExpiry) {
+        hasWarnedExpiry = true;
+        alert('Warning: Your session will expire in 5 minutes! Please reset the timer to keep your workspace active.');
     }
     
     const minutes = Math.floor(remaining / 60);

@@ -61,6 +61,13 @@ def logout(session_id: str):
         pass
     return {"status": "success"}
 
+@app.post("/api/auth/extend")
+def extend_session(session_id: str):
+    # In a real app we might validate the session_id exists in a DB. 
+    # Here we just give a new expiry time.
+    expires_at = int(time.time()) + 45 * 60 # 45 minutes from now
+    return {"status": "success", "expires_at": expires_at}
+
 @app.post("/api/documents/upload")
 def upload_documents(session_id: str = Form(...), files: list[UploadFile] = File(...)):
     uploaded_docs = []
