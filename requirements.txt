@@ -8,3 +8,4 @@ python-dotenv
 pymupdf
 pydantic
 pysqlite3-binary
+langchain-text-splitters
