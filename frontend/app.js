@@ -373,6 +373,7 @@ const sessionTimer = document.getElementById('session-timer');
 let uploadedDocuments = [];
 let sessionExpiryTime = localStorage.getItem('chodhyam_expires_at');
 let timerInterval;
+let hasWarnedExpiry = false;
 
 // Initialize
 if (sessionId && sessionExpiryTime && Date.now() < parseInt(sessionExpiryTime) * 1000) {
@@ -648,7 +649,6 @@ function removeLoading(id) {
     if (el) el.remove();
 }
 
-let hasWarnedExpiry = false;
 
 function showWorkspace() {
     heroSection.classList.add('hidden');
