@@ -38,7 +38,7 @@ app.add_middleware(
 os.makedirs("uploads", exist_ok=True)
 
 print("Loading embedding model...")
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2", local_files_only=True)
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 print("Loading chromadb...")
 client = chromadb.PersistentClient(path="./chroma_fastapi_db")
 print("Done initializing models.")
