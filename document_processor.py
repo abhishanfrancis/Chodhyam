@@ -49,20 +49,21 @@ def create_chunks(pages):
     return chunks
 
 
-pdf_path = "documents/sample.pptx"
+if __name__ == "__main__":
+    pdf_path = "documents/sample.pptx"
 
-pages = extract_pages_from_pdf(pdf_path)
+    pages = extract_pages_from_pdf(pdf_path)
 
-chunks = create_chunks(pages)
+    chunks = create_chunks(pages)
 
-print("Total pages:", len(pages))
-print("Total chunks:", len(chunks))
+    print("Total pages:", len(pages))
+    print("Total chunks:", len(chunks))
 
-for i, chunk in enumerate(chunks):
+    for i, chunk in enumerate(chunks):
 
-    print("\n" + "=" * 70)
-    print(f"CHUNK {i + 1}")
-    print(f"PAGE: {chunk['page_number']}")
-    print("=" * 70)
+        print("\n" + "=" * 70)
+        print(f"CHUNK {i + 1}")
+        print(f"PAGE: {chunk['page_number']}")
+        print("=" * 70)
 
-    print(chunk["text"])
+        print(chunk["text"])

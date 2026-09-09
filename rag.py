@@ -1,7 +1,10 @@
 import chromadb
 from sentence_transformers import SentenceTransformer
-import ollama
-
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+load_dotenv()
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # -----------------------------------------
 # 1. Load the embedding model
@@ -94,15 +97,9 @@ Answer:
 # 8. Send the prompt to Llama
 # -----------------------------------------
 
-response = ollama.chat(
-    model="llama3.2:3b",
-    messages=[
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ]
-)
+model = genai.GenerativeModel('gemini-3.6-flash')
+response = model.generate_content(prompt)
+answer = response.text
 
 
 # -----------------------------------------
@@ -113,7 +110,7 @@ print("\n" + "=" * 70)
 print("ANSWER")
 print("=" * 70)
 
-print(response["message"]["content"])
+print(answer)
 
 
 # -----------------------------------------

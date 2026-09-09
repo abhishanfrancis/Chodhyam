@@ -7,8 +7,11 @@ import streamlit as st
 import fitz  # PyMuPDF
 import chromadb
 from sentence_transformers import SentenceTransformer
-import ollama
-
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+load_dotenv()
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 from document_processor import (
     extract_pages_from_pdf,
     create_chunks
@@ -1240,20 +1243,12 @@ NONE
                         "🤖 Finding the answer..."
                     ):
 
-                        response = ollama.chat(
-                            model="llama3.2:3b",
-                            messages=[
-                                {
-                                    "role": "user",
-                                    "content": prompt
-                                }
-                            ]
-                        )
-
-
-                    raw_response = response[
-                        "message"
-                    ]["content"]
+                        try:
+                            model = genai.GenerativeModel('gemini-3.6-flash')
+                            response = model.generate_content(prompt)
+                            raw_response = response.text
+                        except Exception as e:
+                            raw_response = f"ANSWER: Error generating response: {str(e)}\nEVIDENCE: NONE"
 
 
                     # ====================================================

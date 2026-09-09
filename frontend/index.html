@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chodhyam — Your temporary AI workspace for understanding documents</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;600&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#14B8A6',
+            secondary: '#000000',
+            tertiary: '#0F5AC8',
+            neutral: '#000000',
+            surface: '#F1F5F9',
+            'text-primary': '#F1F5F9',
+            'text-secondary': '#171717',
+            border: '#FFFFFF',
+            accent: '#14B8A6',
+          },
+          fontFamily: {
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          },
+          spacing: {
+            base: '4px',
+            gap: '12px',
+            'section-padding': '76px'
+          },
+          borderRadius: {
+            md: '12px',
+            lg: '16px'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen bg-black">
+  <!--
+  THESIS: A cinematic, single-page presentation of Chodhyam that establishes it as a secure, ephemeral workspace rather than just another PDF chat app.
+  OWN-WORLD: Dark theme (#000000 background) with a teal accent (#14B8A6), using Geist typography and an interactive WebGL dot-matrix particle field for a technical, atmospheric feel.
+  STORY: Visitors learn that they can upload documents securely, ask questions using natural language via RAG and an SLM, and rest assured that their workspace disappears after the session ends.
+  FIRST VIEWPORT: Full-bleed canvas background with centered, bold hero typography emphasizing privacy and ephemerality, alongside a clear primary action to start a session.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+  -->
+  
+  <main class="relative min-h-screen overflow-hidden flex flex-col">
+    <!-- WebGL Background -->
+    <canvas id="field" aria-hidden="true"></canvas>
+
+    <div class="relative z-10 flex flex-col flex-grow">
+      <!-- Navbar -->
+      <nav class="flex items-center justify-between px-8 md:px-12 py-8">
+        <div class="text-white font-semibold text-xl">
+          <span class="tracking-tight">Chodhyam</span>
+        </div>
+        
+
+        
+        <div>
+          <button id="menu-btn" class="px-6 py-2 rounded-[20px] border border-white/20 text-[14px] font-semibold text-white bg-black/50 backdrop-blur-md hover:bg-white/10 transition-colors shadow-[0_0_24px_rgba(20,184,166,0.15)] relative z-50">
+            Menu
+          </button>
+        </div>
+      </nav>
+
+      <!-- GSAP Dropdown Menu -->
+      <div id="dropdown-menu" class="fixed top-[100px] right-8 md:right-12 w-[300px] rounded-2xl border border-white/10 bg-[#000000]/80 backdrop-blur-2xl p-8 z-40 opacity-0 invisible" style="transform: translateY(-20px);">
+        <div class="flex flex-col gap-6">
+          <a href="#" id="menu-new-workspace" class="menu-link text-2xl font-light text-white hover:text-[#14B8A6] transition-colors tracking-tight block">New Workspace</a>
+          <a href="#" id="menu-upload" class="menu-link text-2xl font-light text-white hover:text-[#14B8A6] transition-colors tracking-tight block">Upload Documents</a>
+          <a href="#" id="menu-security" class="menu-link text-2xl font-light text-white hover:text-[#14B8A6] transition-colors tracking-tight block">Security & Privacy</a>
+          <div class="menu-divider h-px w-full bg-white/10 my-2 opacity-0"></div>
+          <a href="#" id="menu-end-session" class="menu-link text-sm font-semibold text-gray-400 hover:text-white transition-colors block">End Session</a>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <div id="hero-section" class="flex-grow flex items-center px-8 md:px-12 w-full max-w-[1600px] mx-auto">
+        <div class="max-w-[700px] mt-[-5vh]">
+          
+          <h1 class="display-lg text-white mb-8 tracking-tight">
+            Your temporary<br/>
+            AI workspace for<br/>
+            understanding<br/>
+            <span class="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-[#14B8A6] via-[#0F5AC8] to-[#9333EA]">documents.</span>
+          </h1>
+          
+          <p class="body-md text-gray-300 max-w-[600px] mb-12">
+            Bring your PDFs, ask natural-language questions, and get grounded answers. 
+            When your session expires, everything disappears. No permanent libraries. No training on your data.
+          </p>
+          
+          <div class="flex items-center gap-8">
+            <a href="#" class="btn-primary text-[14px] font-semibold inline-flex items-center justify-center">
+              Create Workspace
+            </a>
+
+          </div>
+        </div>
+      </div>
+      
+      <div id="workspace-view" class="hidden flex-grow flex-col px-8 md:px-12 w-full max-w-[1800px] mx-auto mt-8 pb-8 z-20">
+        
+        <div class="flex justify-between items-center border-b border-white/20 pb-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-serif text-white tracking-tight">Temporary Workspace</h2>
+            <p id="session-timer" class="text-sm text-gray-400 mt-1">Expires in --:--</p>
+          </div>
+          <button id="end-session-btn" class="px-4 py-2 border border-red-500/50 text-red-400 hover:bg-red-500/10 rounded-lg text-sm transition-colors">
+            End Session
+          </button>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6 flex-grow h-full">
+          <!-- Left Panel: Documents -->
+          <div class="w-full md:w-1/4 flex flex-col gap-4">
+            
+            <div id="upload-zone" class="border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 transition-colors cursor-pointer min-h-[160px]">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 mb-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              <p class="text-white text-sm font-semibold mb-1">Drop PDF files here</p>
+              <p class="text-xs text-gray-400">or click to upload</p>
+              <input type="file" id="file-input" class="hidden" accept="application/pdf" multiple />
+            </div>
+
+            <div class="flex flex-col flex-grow">
+              <h3 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wider">Documents</h3>
+              <div id="document-list" class="flex flex-col gap-2 overflow-y-auto flex-grow max-h-[300px] pr-2">
+                <!-- Documents will appear here -->
+              </div>
+            </div>
+            
+          </div>
+
+          <!-- Center Panel: Chat -->
+          <div class="w-full md:w-1/3 flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden min-h-[400px]">
+            
+            <div id="chat-messages" class="flex-grow p-6 overflow-y-auto flex flex-col gap-6">
+              <div class="text-gray-300 text-sm">
+                Ask a question about your uploaded documents...
+              </div>
+            </div>
+
+            <div class="p-4 bg-black/40 border-t border-white/10">
+              <form id="chat-form" class="relative">
+                <textarea id="chat-input" rows="1" class="w-full bg-white/5 border border-white/10 rounded-lg pl-4 pr-12 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#14B8A6] resize-none text-sm" placeholder="Ask Chodhyam..."></textarea>
+                <button type="submit" id="chat-submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#14B8A6] transition-colors" disabled>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Right Panel: PDF Preview -->
+          <div class="w-full md:w-5/12 flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden min-h-[400px]">
+            <div class="p-4 border-b border-white/10 bg-black/40 flex justify-between items-center">
+              <h3 class="text-sm font-semibold text-gray-300">Document Preview</h3>
+              <div class="text-xs text-gray-400" id="preview-page-info">No document</div>
+            </div>
+            <div class="flex-grow p-4 overflow-auto flex items-center justify-center bg-[#1A1A1A]">
+              <img id="pdf-preview-img" src="" class="max-w-full h-auto hidden border border-white/20 shadow-2xl rounded" />
+              <div id="pdf-preview-placeholder" class="text-gray-500 text-sm">Upload a PDF to see preview</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom border line -->
+      <div class="w-full px-12 pb-8 mt-auto z-10">
+        <div class="w-full h-px bg-white/10"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

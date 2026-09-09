@@ -6,3 +6,5 @@ chroma_db/
 .env.*
 !.env.example
 .streamlit/secrets.toml
+chroma_fastapi_db/
+uploads/
