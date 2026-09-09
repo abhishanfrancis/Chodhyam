@@ -375,6 +375,11 @@ let sessionExpiryTime = localStorage.getItem('chodhyam_expires_at');
 let timerInterval;
 let hasWarnedExpiry = false;
 
+let currentPreviewFilename = null;
+let currentPreviewPage = 1;
+let currentPreviewQuote = "";
+let currentPreviewTotalPages = 1;
+
 // Initialize
 if (sessionId && sessionExpiryTime && Date.now() < parseInt(sessionExpiryTime) * 1000) {
     showWorkspace();
@@ -704,12 +709,46 @@ function updateTimer() {
     sessionTimer.textContent = `Expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
+const prevPageBtn = document.getElementById('prev-page-btn');
+const nextPageBtn = document.getElementById('next-page-btn');
+
+if (prevPageBtn) {
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPreviewPage > 1) {
+            updatePdfPreview(currentPreviewFilename, currentPreviewPage - 1, "");
+        }
+    });
+}
+if (nextPageBtn) {
+    nextPageBtn.addEventListener('click', () => {
+        if (currentPreviewPage < currentPreviewTotalPages) {
+            updatePdfPreview(currentPreviewFilename, currentPreviewPage + 1, "");
+        }
+    });
+}
+
 function updatePdfPreview(filename, page, quote = "") {
     const img = document.getElementById('pdf-preview-img');
     const placeholder = document.getElementById('pdf-preview-placeholder');
     const pageInfo = document.getElementById('preview-page-info');
     
     if (!img || !placeholder) return;
+    
+    currentPreviewFilename = filename;
+    currentPreviewPage = page;
+    currentPreviewQuote = quote;
+    
+    const docInfo = uploadedDocuments.find(d => d.filename === filename);
+    currentPreviewTotalPages = docInfo && docInfo.total_pages ? docInfo.total_pages : 1;
+    
+    if (prevPageBtn) {
+        prevPageBtn.classList.remove('hidden');
+        prevPageBtn.disabled = currentPreviewPage <= 1;
+    }
+    if (nextPageBtn) {
+        nextPageBtn.classList.remove('hidden');
+        nextPageBtn.disabled = currentPreviewPage >= currentPreviewTotalPages;
+    }
     
     placeholder.classList.add('hidden');
     img.classList.remove('hidden');
@@ -722,6 +761,6 @@ function updatePdfPreview(filename, page, quote = "") {
     
     img.onload = () => { img.style.opacity = '1'; };
     img.src = url.toString();
-    pageInfo.textContent = `${filename} - Page ${page}`;
+    pageInfo.textContent = `${filename} - Page ${page} of ${currentPreviewTotalPages}`;
 }
 

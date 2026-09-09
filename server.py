@@ -107,7 +107,7 @@ def upload_documents(session_id: str = Form(...), files: list[UploadFile] = File
                 metadatas=metadatas
             )
             
-            uploaded_docs.append({"filename": file.filename, "status": "processed"})
+            uploaded_docs.append({"filename": file.filename, "status": "processed", "total_pages": len(pages)})
         except Exception as e:
             uploaded_docs.append({"filename": file.filename, "status": "error", "error": str(e)})
             
