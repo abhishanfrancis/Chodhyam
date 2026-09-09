@@ -680,7 +680,7 @@ function updatePdfPreview(filename, page, quote = "") {
     img.classList.remove('hidden');
     img.style.opacity = '0.5'; // Loading state
     
-    const url = new URL(`${API_BASE}/documents/session/${sessionId}/file/${encodeURIComponent(filename)}/page/${page}`);
+    const url = new URL(`${API_BASE}/documents/session/${sessionId}/file/${encodeURIComponent(filename)}/page/${page}`, window.location.origin);
     if (quote) {
         url.searchParams.append('highlight_text', quote);
     }
