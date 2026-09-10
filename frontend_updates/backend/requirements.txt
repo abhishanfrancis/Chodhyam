@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+chromadb
+PyMuPDF
+sentence-transformers
+python-multipart
+boto3
+azure-storage-blob
+httpx
